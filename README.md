@@ -52,7 +52,7 @@ The entire application is orchestrated using Docker Compose, allowing easy deplo
 
 ## Getting Started
 
-1. Clone this repository: `git clone https://github.com/darkshloser/microservices-template.git`
+1. Clone this repository
 2. Navigate to the project directory: `cd microservices-template`
 3. Run the application using Docker Compose: `docker-compose up`
 
