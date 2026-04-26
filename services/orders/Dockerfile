@@ -1,15 +1,30 @@
 FROM python:3.10.6-slim
 
-ENV PYTHONUNBUFFERED 1
-
-RUN mkdir /app
-
+ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
-COPY . /app
+# Install system deps for psycopg2
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN apt update
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:0.11.6 /uv /bin/
 
-RUN apt-get install -y python3-dev default-libmysqlclient-dev build-essential pkg-config
+# Copy dependency files
+COPY pyproject.toml uv.lock ./
 
-RUN pip install -r requirements.txt
+# Clean any bad venv
+RUN rm -rf /app/.venv
+
+# Install Python deps
+RUN uv sync --frozen --no-install-project
+
+# Copy app
+COPY . .
+
+ENV VIRTUAL_ENV=/app/.venv
+ENV PATH="/app/.venv/bin:$PATH"
+
+ENTRYPOINT ["/app/entrypoint.sh"]
